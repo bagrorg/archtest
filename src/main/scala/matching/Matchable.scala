@@ -9,8 +9,12 @@ object Matchable {
 
   type Matchable1[A] = Matchable[A, A]
 
+  // default
+
   def byEquals[A]: Matchable[A, A] =
     (a: A, b: A) => a == b
+
+  // option
 
   def optionL[A, B](ev: Matchable[A, B]): Matchable[Option[A], B] =
     (a: Option[A], b: B) => a.nonEmpty && ev.matches(a.get, b)
@@ -20,6 +24,8 @@ object Matchable {
 
   def options[A, B](ev: Matchable[A, B]): Matchable[Option[A], Option[B]] =
     (a: Option[A], b: Option[B]) => a.nonEmpty && b.nonEmpty && ev.matches(a.get, b.get)
+
+  // lift
 
   def lift[A, B, C, D](ev: Matchable[A, B])(ca: C => A, db: D => B): Matchable[C, D] =
     (c: C, d: D) => ev.matches(ca(c), db(d))
@@ -33,11 +39,15 @@ object Matchable {
   def liftR[A, B, D](ev: Matchable[A, B])(db: D => B): Matchable[A, D] =
     (a: A, d: D) => ev.matches(a, db(d))
 
+  // composition
+
   def any[A, B](inners: Matchable[A, B]*): Matchable[A, B] =
     (a: A, b: B) => inners.exists(_.matches(a, b))
 
   def all[A, B](inners: Matchable[A, B]*): Matchable[A, B] =
     (a: A, b: B) => inners.forall(_.matches(a, b))
+
+  // syntax
 
   implicit class Syntax[A, B](ev: Matchable[A, B]) {
     def optionL: Matchable[Option[A], B] = Matchable.optionL(ev)

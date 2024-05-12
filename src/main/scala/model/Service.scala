@@ -1,7 +1,9 @@
 package com.github.mmvpm
 package model
 
+import matching.Instances.{matchServiceConfig, matchServices}
 import matching.Matchable
+import matching.Matchable.Matchable1
 import model.ServiceInterface.fromProvides
 import parser.model.{ServiceConfig => ServiceConfigRaw, ServiceDeploy, ServiceMap}
 import parser.model.ServiceMap.DependsOn
@@ -39,15 +41,19 @@ case class Service(
   def hasDependencyOn(
       other: Service
     )(implicit
-      matchService: Matchable[Service, Service],
-      matchConfig: Matchable[Service, KeyValuePair]): Boolean =
-    hasDependencyInServiceMapOn(other) || hasDependencyInConfigOn(other)
+      matchableForServices: Matchable1[Service] = matchServices,
+      matchableForConfigs: Matchable[Service, KeyValuePair] = matchServiceConfig): Boolean =
+    hasDependencyInServiceMap(other)(matchableForServices) || hasDependencyInConfig(other)(matchableForConfigs)
 
-  def hasDependencyInServiceMapOn(other: Service)(implicit ev: Matchable[Service, Service]): Boolean =
-    dependsOn.exists(ev.matches(other, _))
+  def hasDependencyInServiceMap(
+      other: Service
+    )(implicit matchable: Matchable1[Service] = matchServices): Boolean =
+    dependsOn.exists(matchable.matches(other, _))
 
-  def hasDependencyInConfigOn(other: Service)(implicit ev: Matchable[Service, KeyValuePair]): Boolean =
-    config.all.params.exists(ev.matches(other, _))
+  def hasDependencyInConfig(
+      other: Service
+    )(implicit matchable: Matchable[Service, KeyValuePair] = matchServiceConfig): Boolean =
+    config.all.params.exists(matchable.matches(other, _))
 }
 
 object Service {

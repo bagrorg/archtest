@@ -1,9 +1,5 @@
 package com.github.mmvpm
 
-import com.github.mmvpm.trash.instances.HostInstances._
-import com.github.mmvpm.trash.instances.IpInstances._
-import com.github.mmvpm.trash.instances.ServiceFqnInstances._
-import com.github.mmvpm.trash.instances.ServiceInstances._
 import model.{KeyValuePair, Service, ServiceFqn}
 
 import org.scalatest.flatspec.AnyFlatSpec
@@ -14,7 +10,6 @@ import org.scalatest.LoneElement.convertToCollectionLoneElementWrapper
 class Spec extends AnyFlatSpec with Matchers with ArchTest {
 
   "only autoru-api" should "have a dependency on callkeeper" in {
-
     val callkeeper = Service.withIp("185.98.83.28")
 
     val result = services.values.filter { service =>
@@ -71,7 +66,7 @@ class Spec extends AnyFlatSpec with Matchers with ArchTest {
   "dependsOn" should "not contain irrelevant dependencies" ignore {
     Inspectors.forEvery(services.values) { service =>
       val dependsOnSection = service.dependsOn.map(_.fqn.get.fqn).toSet
-      val dependenciesFromConfig = services.values.filter(service.hasDependencyInConfigOn).map(_.fqn.get.fqn).toSet
+      val dependenciesFromConfig = services.values.filter(service.hasDependencyInConfig).map(_.fqn.get.fqn).toSet
 
       withClue(s"Service ${service.fqn.get}: ") {
         dependsOnSection.diff(dependenciesFromConfig) should have size 0
