@@ -1,7 +1,10 @@
 package com.github.mmvpm
 
-import model.{KeyValuePair, Service, ServiceFqn}
+import matching.Instances._
+import model.{KeyValuePair, Service, ServiceFqn, ServiceInterface, ServiceName, ServiceType}
 
+import com.github.mmvpm.matching.Matchable
+import com.github.mmvpm.matching.Matchable.byEquals
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.Inspectors
@@ -41,6 +44,27 @@ class Spec extends AnyFlatSpec with Matchers with ArchTest {
     result.loneElement.fqn.get.fqn shouldBe "batch/aptly"
   }
 
+  "only fp and vos" should "have access to feedprocessor topic" in {
+    val autoruToVosTopic = Service.kafkaTopic("shared-01", "feedprocessor-autoru-to-vos")
+    val servicesWithAccess = Set("feedprocessor-auto-nonrt", "vos2-autoru-consumers")
+
+    val result = services.values.filter { service =>
+      service.hasDependencyOn(autoruToVosTopic)
+    }
+    result.map(_.fqn.get.fqn).toSet shouldBe servicesWithAccess
+
+    val matchTopicName: Matchable[Service, KeyValuePair] =
+      (service: Service, config: KeyValuePair) => service.interfaces.flatMap(_.name).contains(config.value)
+
+    val matchable = matchServiceConfig.or(matchTopicName)
+
+    val resultConfig = services.values.filter { service =>
+      service.hasDependencyInConfig(autoruToVosTopic)(matchable)
+    }
+    println(resultConfig.map(_.fqn.get))
+    resultConfig.map(_.fqn.get.fqn).toSet shouldBe servicesWithAccess
+  }
+
   "test" should "diff" in {
     val salesmanApi = services(ServiceFqn.service("salesman-api"))
 
@@ -51,8 +75,12 @@ class Spec extends AnyFlatSpec with Matchers with ArchTest {
       .map(_.fqn.get.fqn)
       .toSet
 
+//    val containsSalesmanApi: Matchable[Service, KeyValuePair] =
+//      (_: Service, b: KeyValuePair) => b.value.contains("salesman-api")
+
     val result2 = services.values
       .filter { service =>
+//        service.hasDependencyInConfig(salesmanApi)(containsSalesmanApi)
         service.existsInConfig(_.value.contains("salesman-api"))
       }
       .map(_.fqn.get.fqn)

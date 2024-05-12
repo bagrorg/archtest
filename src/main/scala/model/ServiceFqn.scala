@@ -12,4 +12,7 @@ object ServiceFqn {
 
   def batch(name: String): ServiceFqn =
     ServiceFqn("batch/" + name)
+
+  def kafka(name: String): ServiceFqn =
+    ServiceFqn("kafka/" + name)
 }

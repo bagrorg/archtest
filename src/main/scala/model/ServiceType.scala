@@ -10,6 +10,9 @@ object ServiceType {
   val service: ServiceType =
     ServiceType("service")
 
+  val kafka: ServiceType =
+    ServiceType("kafka")
+
   def from(option: Option[String]): ServiceType =
     option.map(ServiceType(_)).getOrElse(service)
 }

@@ -3,9 +3,8 @@ package model
 
 import matching.Instances.{matchServiceConfig, matchServices}
 import matching.Matchable
-import matching.Matchable.Matchable1
 import model.ServiceInterface.fromProvides
-import parser.model.{ServiceConfig => ServiceConfigRaw, ServiceDeploy, ServiceMap}
+import parser.model.{ServiceDeploy, ServiceMap, ServiceConfig => ServiceConfigRaw}
 import parser.model.ServiceMap.DependsOn
 
 case class Service(
@@ -41,13 +40,13 @@ case class Service(
   def hasDependencyOn(
       other: Service
     )(implicit
-      matchableForServices: Matchable1[Service] = matchServices,
-      matchableForConfigs: Matchable[Service, KeyValuePair] = matchServiceConfig): Boolean =
-    hasDependencyInServiceMap(other)(matchableForServices) || hasDependencyInConfig(other)(matchableForConfigs)
+      forServices: Matchable[Service, Service] = matchServices,
+      forConfigs: Matchable[Service, KeyValuePair] = matchServiceConfig): Boolean =
+    hasDependencyInServiceMap(other)(forServices) || hasDependencyInConfig(other)(forConfigs)
 
   def hasDependencyInServiceMap(
       other: Service
-    )(implicit matchable: Matchable1[Service] = matchServices): Boolean =
+    )(implicit matchable: Matchable[Service, Service] = matchServices): Boolean =
     dependsOn.exists(matchable.matches(other, _))
 
   def hasDependencyInConfig(
@@ -61,11 +60,25 @@ object Service {
   def withIp(ip: String): Service =
     new Service(ip = Some(Ip(ip)))
 
-  def withName(name: String): Service =
-    new Service(name = Some(ServiceName(name)))
+  def withFqn(fqn: String): Service = {
+    val (serviceType, name) = parseFqn(fqn)
+    new Service(name = Some(name), `type` = serviceType)
+  }
 
   def withHost(host: String): Service =
     new Service(host = Some(Host(host)))
+
+  def kafkaTopic(clusterName: String, topicName: String): Service =
+    Service(
+      name = Some(ServiceName(clusterName)),
+      `type` = ServiceType.kafka,
+      interfaces = Seq(
+        ServiceInterface(
+          name = Some(topicName),
+          protocol = Some("kafka")
+        )
+      )
+    )
 
   def fromPaas(
       serviceMap: ServiceMap,
@@ -80,19 +93,21 @@ object Service {
     )
 
   def fromDependsOn(dependsOn: DependsOn): Service = {
-    val (serviceTypeRaw, name) =
-      dependsOn.service.split("/").takeRight(2) match {
-        case Array(name) => (None, name)
-        case Array(serviceType, name) => (Some(serviceType), name)
-      }
-    val serviceType = ServiceType.from(serviceTypeRaw)
-
+    val (serviceType, name) = parseFqn(dependsOn.service)
     val interface = ServiceInterface(name = Some(dependsOn.interfaceName))
-
     Service(
-      name = Some(ServiceName(name)),
+      name = Some(name),
       `type` = serviceType,
       interfaces = Seq(interface)
     )
+  }
+
+  private def parseFqn(fqn: String): (ServiceType, ServiceName) = {
+    val (typeRaw, nameRaw) =
+      fqn.split("/").takeRight(2) match {
+        case Array(name) => (None, name)
+        case Array(serviceType, name) => (Some(serviceType), name)
+      }
+    (ServiceType.from(typeRaw), ServiceName(nameRaw))
   }
 }
