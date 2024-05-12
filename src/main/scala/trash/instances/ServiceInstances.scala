@@ -1,9 +1,9 @@
 package com.github.mmvpm
-package matching.instances
+package trash.instances
 
 import matching.Matchable
 import matching.Matchable.Syntax
-import matching.instances.CommonInstances._
+import CommonInstances._
 import matching.util.HostUtils.{normalizeHost, possibleHostPrefixes}
 import model._
 

@@ -37,7 +37,7 @@ object ServiceConfig {
     def from(raw: Params): Layer =
       Layer(
         raw.toSeq.collect {
-          case (key, value) if value.isString =>
+          case (key, value) if value.isString => // TODO: not only strings?
             KeyValuePair(key, value.asString.get)
         }
       )

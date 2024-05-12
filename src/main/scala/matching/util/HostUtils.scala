@@ -3,6 +3,8 @@ package matching.util
 
 import model.{Service, ServiceType}
 
+import scala.util.matching.Regex
+
 object HostUtils {
 
   def normalizeHost(host: String): String =
@@ -26,4 +28,15 @@ object HostUtils {
       case _ =>
         Seq.empty
     }
+
+  val InternalHostSuffix = "vertis.yandex.net"
+
+  private val namePattern = "[a-z0-9-_]*"
+  private val nameWithTypePattern = "[a-z0-9-_/]*"
+
+  val shivaUrlRegex: Regex =
+    s"\\$$\\{url:($nameWithTypePattern):($namePattern)}".r // ${url:name:interface}
+
+  val shivaHostRegex: Regex =
+    s"\\$$\\{host:($nameWithTypePattern):($namePattern)}".r // ${host:name:interface}
 }

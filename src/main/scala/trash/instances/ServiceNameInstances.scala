@@ -1,5 +1,5 @@
 package com.github.mmvpm
-package matching.instances
+package trash.instances
 
 import matching.Matchable
 import model._

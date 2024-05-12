@@ -1,9 +1,9 @@
 package com.github.mmvpm
 
-import matching.instances.HostInstances._
-import matching.instances.IpInstances._
-import matching.instances.ServiceFqnInstances._
-import matching.instances.ServiceInstances._
+import com.github.mmvpm.trash.instances.HostInstances._
+import com.github.mmvpm.trash.instances.IpInstances._
+import com.github.mmvpm.trash.instances.ServiceFqnInstances._
+import com.github.mmvpm.trash.instances.ServiceInstances._
 import model.{KeyValuePair, Service, ServiceFqn}
 
 import org.scalatest.flatspec.AnyFlatSpec
