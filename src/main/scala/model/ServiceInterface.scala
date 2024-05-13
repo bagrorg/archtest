@@ -6,7 +6,8 @@ import parser.model.ServiceMap.Provides
 case class ServiceInterface(
     name: Option[String] = None,
     protocol: Option[String] = None,
-    port: Option[Int] = None)
+    port: Option[Int] = None,
+    kafkaProducer: Option[Boolean] = None)
 
 object ServiceInterface {
 

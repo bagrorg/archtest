@@ -94,7 +94,10 @@ object Service {
 
   def fromDependsOn(dependsOn: DependsOn): Service = {
     val (serviceType, name) = parseFqn(dependsOn.service)
-    val interface = ServiceInterface(name = Some(dependsOn.interfaceName))
+    val interface = ServiceInterface(
+      name = Some(dependsOn.interfaceName),
+      kafkaProducer = dependsOn.kafkaProducer
+    )
     Service(
       name = Some(name),
       `type` = serviceType,
