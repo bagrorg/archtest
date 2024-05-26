@@ -1,9 +1,10 @@
 package com.github.mmvpm.examples.shiva
 
-import ShivaInstances.{matchServiceConfig, matchServices}
+import ShivaInstances.{matchAnyExternalService, matchServiceConfig, matchServices}
 
 import com.github.mmvpm.core.ArchTest
 import com.github.mmvpm.core.matching.Matchable
+import com.github.mmvpm.core.matching.util.HostUtils.normalizeHost
 import com.github.mmvpm.core.model._
 import com.github.mmvpm.parsers.shiva.ServicesProviderShiva
 import org.scalatest.flatspec.AnyFlatSpec
@@ -108,5 +109,15 @@ class FlatSpec extends AnyFlatSpec with Matchers with ArchTest with ServicesProv
     val result = services.filter(_.hasDependencyOn(vos2AutoShard1))
 
     result.flatMap(_.fqn).forall(_.fqn.startsWith("vos2-autoru")) shouldBe true
+  }
+
+  "autoru-api" should "not have external dependencies" in {
+    val externalService = Service.withIsExternal(true)
+
+    val result = Services.autoruApi.getMatchesInConfigWith(externalService)(matchAnyExternalService)
+
+    withClue(s"Failed configs:\n- ${result.map(p => s"${p.key}: ${p.value}").mkString("\n- ")}\n\n") {
+      result shouldBe Seq.empty
+    }
   }
 }

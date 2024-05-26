@@ -74,6 +74,10 @@ case class Service(
   def existsInConfigTest(predicate: KeyValuePair => Boolean): Boolean =
     config.test.params.exists(predicate)
 
+  // ???
+  def filterInConfig(predicate: KeyValuePair => Boolean): Seq[KeyValuePair] =
+    config.all.params.filter(predicate)
+
   // match with other service
 
   def hasDependencyOn(
@@ -88,6 +92,10 @@ case class Service(
 
   def hasDependencyInConfig(other: Service)(implicit m: Matchable[Service, KeyValuePair]): Boolean =
     config.all.params.exists(m.matches(other, _))
+
+  // ???
+  def getMatchesInConfigWith(other: Service)(implicit m: Matchable[Service, KeyValuePair]): Seq[KeyValuePair] =
+    config.all.params.filter(m.matches(other, _)).distinct
 }
 
 object Service {
