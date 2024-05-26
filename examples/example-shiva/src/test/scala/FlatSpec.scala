@@ -1,7 +1,8 @@
 package com.github.mmvpm.examples.shiva
 
-import com.github.mmvpm.core.ArchTest
 import ShivaInstances.{matchServiceConfig, matchServices}
+
+import com.github.mmvpm.core.ArchTest
 import com.github.mmvpm.core.matching.Matchable
 import com.github.mmvpm.core.model._
 import com.github.mmvpm.parsers.shiva.ServicesProviderShiva
@@ -10,7 +11,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.Inspectors
 import org.scalatest.LoneElement.convertToCollectionLoneElementWrapper
 
-class Spec extends AnyFlatSpec with Matchers with ArchTest with ServicesProviderShiva {
+class FlatSpec extends AnyFlatSpec with Matchers with ArchTest with ServicesProviderShiva {
 
   "only autoru-api" should "have a dependency on callkeeper" in {
     val callkeeper = Service.withIp("185.98.83.28")
@@ -51,7 +52,7 @@ class Spec extends AnyFlatSpec with Matchers with ArchTest with ServicesProvider
     val result = services.filter { service =>
       service.hasDependencyOn(autoruToVosTopic)
     }
-    result.map(_.fqn.get.fqn).toSet diff servicesWithAccess shouldBe empty
+    result.map(_.fqn.get.fqn).toSet.diff(servicesWithAccess) shouldBe empty
 
     val matchTopicName: Matchable[Service, KeyValuePair] =
       (service: Service, config: KeyValuePair) => service.interfaces.flatMap(_.name.map(_.name)).contains(config.value)
