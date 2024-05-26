@@ -6,6 +6,7 @@ import matching.Matchable
 case class Service(
     name: Option[ServiceName] = None,
     `type`: ServiceType = ServiceType.service,
+    groups: Seq[ServiceGroup] = Seq.empty,
     interfaces: Seq[ServiceInterface] = Seq.empty,
     host: Option[Host] = None,
     ip: Option[Ip] = None,
@@ -33,6 +34,9 @@ case class Service(
     val (serviceType, name) = ServiceFqn(fqn).split
     this.copy(name = Some(name), `type` = serviceType)
   }
+
+  def withGroups(groups: ServiceGroup*): Service =
+    this.copy(groups = groups)
 
   def withInterfaces(interfaces: ServiceInterface*): Service =
     this.copy(interfaces = interfaces)
@@ -102,6 +106,9 @@ object Service {
     val (serviceType, name) = ServiceFqn(fqn).split
     new Service(name = Some(name), `type` = serviceType)
   }
+
+  def withGroups(groups: ServiceGroup*): Service =
+    new Service(groups = groups)
 
   def withInterfaces(interfaces: ServiceInterface*): Service =
     new Service(interfaces = interfaces)

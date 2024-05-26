@@ -16,6 +16,7 @@ object ServiceConverter {
     Service(
       name = Some(ServiceName(serviceMap.name)),
       `type` = ServiceType.from(serviceMap.`type`.map(_.stripPrefix("mdb_"))),
+      groups = serviceMap.groups.getOrElse(Seq.empty).map(ServiceGroup),
       interfaces = serviceMap.provides.getOrElse(Seq.empty).map(_.toServiceInterface),
       dependsOn = serviceMap.dependsOn.getOrElse(Seq.empty).map(_.toService),
       config = serviceConfig.getOrElse(ShivaServiceConfig.empty).toServiceConfig

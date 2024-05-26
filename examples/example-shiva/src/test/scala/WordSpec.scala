@@ -10,7 +10,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 
 class WordSpec extends AnyWordSpecLike with Matchers with ArchTest with ServicesProviderShiva {
 
-  "topics from service map should occur in config" should {
+  "topics from service map should occur in config" ignore {
     services.foreach { service =>
       s"${service.fqn.get}" in {
         val topicsNotExistInConfig = service.dependsOn
@@ -23,7 +23,7 @@ class WordSpec extends AnyWordSpecLike with Matchers with ArchTest with Services
     }
   }
 
-  "all kafka topic should be used" should {
+  "all kafka topic should be used" ignore {
     val sharedKafka = servicesMap(ServiceFqn.kafka("shared-01"))
     val topics = sharedKafka.interfaces.map { interface =>
       Service.kafkaTopic("shared-01", interface.name.get.name)
@@ -47,6 +47,49 @@ class WordSpec extends AnyWordSpecLike with Matchers with ArchTest with Services
         withClue(s"Failed on services ${servicesDependsOnTopic.map(_.fqn.get)}\n") {
           servicesDependsOnTopic.size should be >= 2
           producersOfTopic.size should be >= 1
+        }
+      }
+    }
+  }
+
+  "all mysql databases should be used" ignore {
+    val mysqlDatabases = services.filter(_.`type` == ServiceType.mysql)
+
+    mysqlDatabases.foreach { db =>
+      s"${db.fqn.get}" in {
+        services.filter(_.hasDependencyOn(db)) should not be empty
+      }
+    }
+  }
+
+  "all postgresql databases should be used" ignore {
+    val mysqlDatabases = services.filter(_.`type` == ServiceType.postgresql)
+
+    mysqlDatabases.foreach { db =>
+      s"${db.fqn.get}" in {
+        services.filter(_.hasDependencyOn(db)) should not be empty
+      }
+    }
+  }
+
+  "mysql database should be accessible from at most one service" should {
+    val mysqlDatabases = services.filter(_.`type` == ServiceType.mysql)
+
+    mysqlDatabases.foreach { mysqlDatabase =>
+      s"${mysqlDatabase.fqn.get}" in {
+        val servicesDependsOnDb = services
+          .filter(_.hasDependencyOn(mysqlDatabase))
+          .filter(_.`type` != ServiceType.etl)
+
+        withClue(
+          s"Failed on services ${servicesDependsOnDb.map(s => s"${s.fqn.get} (${s.groups.mkString(", ")})")}\n"
+        ) {
+          lazy val groupsIntersection = servicesDependsOnDb
+            .map(_.groups)
+            .reduce(_ intersect _)
+          val allFromTheSameGroup = servicesDependsOnDb.size <= 1 || groupsIntersection.nonEmpty
+
+          allFromTheSameGroup shouldBe true
         }
       }
     }

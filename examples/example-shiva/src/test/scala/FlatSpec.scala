@@ -101,4 +101,12 @@ class FlatSpec extends AnyFlatSpec with Matchers with ArchTest with ServicesProv
       }
     }
   }
+
+  "vertis-vos-vos2-auto-shard1" should "test" in {
+    val vos2AutoShard1 = servicesMap(ServiceFqn.mysql("vertis-vos-vos2-auto-shard1"))
+
+    val result = services.filter(_.hasDependencyOn(vos2AutoShard1))
+
+    result.flatMap(_.fqn).forall(_.fqn.startsWith("vos2-autoru")) shouldBe true
+  }
 }
