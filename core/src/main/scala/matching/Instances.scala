@@ -17,21 +17,30 @@ object Instances {
   val matchFqns: Matchable1[ServiceFqn] =
     byEquals[String].lift1(_.fqn)
 
+  // interface name
+
+  val matchInterfaceNames: Matchable1[InterfaceName] =
+    byEquals[String].lift1(_.name)
+
+  // protocol
+
+  val matchProtocols: Matchable1[Protocol] =
+    byEquals[String].lift1(_.protocol)
+
   // interfaces
 
   val matchInterfaces: Matchable1[ServiceInterface] = {
-    val byNames = byEquals[String].options
+    val byNames = matchInterfaceNames
+      .options
       .lift1[ServiceInterface](_.name)
 
-    val byProtocols = byEquals[String]
+    val byProtocols = matchProtocols
       .options(ifNone = true, ifNones = true)
       .lift1[ServiceInterface](_.protocol)
 
     val byPorts = byEquals[Int]
       .options(ifNone = true, ifNones = true)
       .lift1[ServiceInterface](_.port)
-
-    // TODO: kafka?
 
     byNames and byProtocols and byPorts
   }

@@ -25,8 +25,8 @@ object ServiceConverter {
 
     def toServiceInterface: ServiceInterface =
       ServiceInterface(
-        name = Some(provides.name),
-        protocol = Some(provides.protocol),
+        name = Some(InterfaceName(provides.name)),
+        protocol = Some(Protocol(provides.protocol)),
         port = provides.port
       )
   }
@@ -38,8 +38,11 @@ object ServiceConverter {
         .withFqn(dependsOn.service)
         .withInterfaces(
           ServiceInterface(
-            name = Some(dependsOn.interfaceName),
-            kafkaProducer = dependsOn.kafkaProducer
+            name = Some(InterfaceName(dependsOn.interfaceName)),
+            kafkaType = dependsOn.kafkaProducer.map {
+              case false => KafkaType.Consumer
+              case true => KafkaType.ProducerAndConsumer
+            }
           )
         )
   }

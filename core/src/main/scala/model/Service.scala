@@ -132,8 +132,8 @@ object Service {
       `type` = ServiceType.kafka,
       interfaces = Seq(
         ServiceInterface(
-          name = Some(topicName),
-          protocol = Some("kafka")
+          name = Some(InterfaceName(topicName)),
+          protocol = Some(Protocol.kafka)
         )
       )
     )

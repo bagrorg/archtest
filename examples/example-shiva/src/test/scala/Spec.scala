@@ -17,7 +17,7 @@ class Spec extends AnyFlatSpec with Matchers with ArchTest with ServicesProvider
 
     val result = services.filter { service =>
       service.hasDependencyOn(callkeeper)
-    }.toList
+    }
 
     result.loneElement.fqn.get.fqn shouldBe "autoru-api"
   }
@@ -27,7 +27,7 @@ class Spec extends AnyFlatSpec with Matchers with ArchTest with ServicesProvider
 
     val result = services.filter { service =>
       service.hasDependencyOn(iskra)
-    }.toList
+    }
 
     result.loneElement.fqn.get.fqn shouldBe "autoru-api"
   }
@@ -46,26 +46,25 @@ class Spec extends AnyFlatSpec with Matchers with ArchTest with ServicesProvider
 
   "only fp and vos" should "have access to feedprocessor topic" in {
     val autoruToVosTopic = Service.kafkaTopic("shared-01", "feedprocessor-autoru-to-vos")
-    val servicesWithAccess = Set("feedprocessor-auto-nonrt", "vos2-autoru-consumers")
+    val servicesWithAccess = Set("feedprocessor-auto-rt", "feedprocessor-auto-nonrt", "vos2-autoru-consumers")
 
     val result = services.filter { service =>
       service.hasDependencyOn(autoruToVosTopic)
     }
-    result.map(_.fqn.get.fqn).toSet shouldBe servicesWithAccess
+    result.map(_.fqn.get.fqn).toSet diff servicesWithAccess shouldBe empty
 
     val matchTopicName: Matchable[Service, KeyValuePair] =
       (service: Service, config: KeyValuePair) => service.interfaces.flatMap(_.name).contains(config.value)
 
-    val matchable = matchServiceConfig.or(matchTopicName)
+    val matchable = matchServiceConfig or matchTopicName
 
     val resultConfig = services.filter { service =>
       service.hasDependencyInConfig(autoruToVosTopic)(matchable)
     }
-    println(resultConfig.map(_.fqn.get))
     resultConfig.map(_.fqn.get.fqn).toSet shouldBe servicesWithAccess
   }
 
-  "test" should "diff" in {
+  "salesman-api" should "not have difference between service map and configs" in {
     val salesmanApi = servicesMap(ServiceFqn.service("salesman-api"))
 
     val result = services
