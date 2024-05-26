@@ -11,7 +11,8 @@ case class Service(
     host: Option[Host] = None,
     ip: Option[Ip] = None,
     dependsOn: Seq[Service] = Seq.empty,
-    config: ServiceConfig = ServiceConfig.empty) {
+    config: ServiceConfig = ServiceConfig.empty,
+    isExternal: Boolean = false) {
 
   val fqn: Option[ServiceFqn] =
     ServiceFqn.of(service = this)
@@ -58,6 +59,9 @@ case class Service(
 
   def withConfig(config: ServiceConfig): Service =
     this.copy(config = config)
+
+  def withIsExternal(isExternal: Boolean): Service =
+    this.copy(isExternal = isExternal)
 
   // match with raw config
 
@@ -130,6 +134,9 @@ object Service {
 
   def withConfig(config: ServiceConfig): Service =
     new Service(config = config)
+
+  def withIsExternal(isExternal: Boolean): Service =
+    new Service(isExternal = isExternal)
 
   // other custom constructors
 

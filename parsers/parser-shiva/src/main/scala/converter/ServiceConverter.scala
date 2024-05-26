@@ -19,7 +19,8 @@ object ServiceConverter {
       groups = serviceMap.groups.getOrElse(Seq.empty).map(ServiceGroup),
       interfaces = serviceMap.provides.getOrElse(Seq.empty).map(_.toServiceInterface),
       dependsOn = serviceMap.dependsOn.getOrElse(Seq.empty).map(_.toService),
-      config = serviceConfig.getOrElse(ShivaServiceConfig.empty).toServiceConfig
+      config = serviceConfig.getOrElse(ShivaServiceConfig.empty).toServiceConfig,
+      isExternal = serviceMap.isExternal.contains(true)
     )
 
   implicit class ProvidesConverter(provides: Provides) {
