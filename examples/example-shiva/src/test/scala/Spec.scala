@@ -54,7 +54,7 @@ class Spec extends AnyFlatSpec with Matchers with ArchTest with ServicesProvider
     result.map(_.fqn.get.fqn).toSet diff servicesWithAccess shouldBe empty
 
     val matchTopicName: Matchable[Service, KeyValuePair] =
-      (service: Service, config: KeyValuePair) => service.interfaces.flatMap(_.name).contains(config.value)
+      (service: Service, config: KeyValuePair) => service.interfaces.flatMap(_.name.map(_.name)).contains(config.value)
 
     val matchable = matchServiceConfig or matchTopicName
 
